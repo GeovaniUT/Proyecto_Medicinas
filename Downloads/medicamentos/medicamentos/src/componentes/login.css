@@ -1,0 +1,20 @@
+.background-image {
+    background-image: url('https://ih1.redbubble.net/image.1192769704.4626/st,small,507x507-pad,600x600,f8f8f8.jpg'); /* Ruta de tu imagen de fondo */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    height: 1000vh; /* Ajusta la altura como desees */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.tittle{
+   font-size: 100px;
+   font-family: fantasy;
+   margin-left: 170px;
+   padding-bottom: 20px;
+   color: rgba(255, 251, 0, 0.932);
+   -webkit-text-stroke: 1px black;
+
+}
