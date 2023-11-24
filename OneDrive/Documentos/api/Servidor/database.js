@@ -8,10 +8,10 @@ app.use(express.json(),cors());
 
 
 const conexion=mysql.createConnection({
-    server:'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'Medicina'
+    host:'mysql-geovani.alwaysdata.net',
+    user: 'geovani',
+    password: 'database2023',
+    database: 'geovani_medicamentos'
 });
 
 conexion.connect(function(error){
@@ -72,6 +72,7 @@ app.get('/obtenerRecetas',(request,response)=>{
 
         listMedicamentos.forEach(element => {
             const time = new Date(element.hora);
+            
 
             
             let horaNueva= `${time.getHours()}:${time.getMinutes()}`;
@@ -88,8 +89,9 @@ app.get('/obtenerRecetas',(request,response)=>{
                 formattedTime = 'Evening';
             } else if (time.getHours() >= 18 && time.getHours() < 24) {
                 formattedTime = 'Night';
-            } else {
-                formattedTime = 'Only when i need it';
+            } else{          
+                        formattedTime = 'Only when i need it';
+                   
             }
 
             listadoMedicamentosFormateado.push({
@@ -107,6 +109,8 @@ app.get('/obtenerRecetas',(request,response)=>{
 app.put('/actualizarHora', (request, response) => {
     const id_medicamento = request.body.id_medicamento;
     const tiempo = request.body.tiempo;
+
+    console.log(tiempo)
 
     const sql= `UPDATE medicamentos SET hora = DATE_ADD(hora, INTERVAL ${tiempo} HOUR)WHERE id_medicamento = ${id_medicamento}`
     console.log(sql)
