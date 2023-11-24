@@ -23,7 +23,7 @@
   }
 
   .night{
-    background-color: rgb(223, 162, 227);
+    background-color: rgb(65, 159, 236);
   }
 
   .only{
@@ -45,6 +45,7 @@
     border-collapse: separate;
     border-spacing: 10px 0;
     margin-bottom: 10px;
+    
     /* margin-left: 500px; */
     
   }
@@ -76,39 +77,47 @@
   }
 
 
-  table.scroll {
-    width: 20%; /* 140px * 5 column + 16px scrollbar width */
-    border-spacing: 0;
-    border: 2px solid black;
+.Terminar{
+  margin-left: 5px;
+  border: none;
+  color: white;
+  margin-top: 10px;
+  height: 30px;
+  background-color: rgb(213, 73, 73);
+  border-radius: 5px;
+
 }
-
-table.scroll tbody,
-table.scroll thead tr { display: block; }
-
-table.scroll tbody {
-    height: 100px;
-    overflow-y: auto;
-    overflow-x: scroll;
+.red th{
+  background-color: white;
 }
-
-table.scroll tbody td,
-table.scroll thead th {
-    width: 140px;
-    border: 1px solid black;
+.red tr:nth-child(even){
+  background-color: rgb(246, 195, 195);
 }
-
-table.scroll thead th:last-child {
-    width: 156px; /* 140px + 16px scrollbar width */
+.red tr:nth-child(odd) {
+  background-color:rgb(245, 167, 167);
 }
-
-thead tr th { 
-    height: 30px;
-    line-height: 30px;
-    /*text-align: left;*/
+.yellow tr:nth-child(even){
+  background-color: rgb(235, 235, 191);
 }
-
-tbody { border-top: 2px solid black; }
-
-tbody td:last-child, thead th:last-child {
-    border-right: none !important;
+.yellow tr:nth-child(odd) {
+  background-color:#ebdc88;
+}
+.blue tr:nth-child(even){
+  background-color:rgb(188, 239, 232);
+}
+.blue tr:nth-child(odd) {
+  background-color:rgb(131, 248, 240);
+}
+.purple tr:nth-child(even){
+  background-color:rgb(150, 189, 234);
+}
+.purple tr:nth-child(odd) {
+  
+  background-color: rgb(98, 167, 241);
+}
+.green tr:nth-child(even){
+  background-color: rgb(209, 240, 205);
+}
+.green tr:nth-child(odd) {
+  background-color:rgb(144, 237, 178);
 }

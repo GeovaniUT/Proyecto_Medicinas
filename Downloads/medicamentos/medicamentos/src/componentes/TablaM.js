@@ -3,46 +3,53 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faCoffee, faMoon, faBed, faPills } from '@fortawesome/free-solid-svg-icons';
 import './tabla.css';
-import { json } from 'react-router-dom';
 
 
 function Tabla() {
 
 
     const [dosis, setDosis] = useState([])
-    const [tiempo, setTiempo] = useState([])
+    const [tiempo, setTiempo] = useState(0)
     const [fecha, setFecha] = useState([])
     const [comentarios, setComentarios] = useState([])
 
 
- 
+    const handleTiempoChange = event => {
+      setTiempo(event.target.value);
+    };
 
   const [tabla, setTabla] = useState([1,2,3,4])
   const [medicamentos, setMedicamentos] = useState([
     {
       
       tiempo: "Morning",
-      icon: <FontAwesomeIcon icon={faSun} /> ,   
+      icon: <FontAwesomeIcon icon={faSun} /> ,  
+      className: "red"
     },
     {
       tiempo: "Noon",
       icon:<FontAwesomeIcon icon={faCoffee} />,  
+      className: "yellow"
     },
     {
       tiempo: "Evening",
-      icon: <FontAwesomeIcon icon={faMoon}></FontAwesomeIcon>
+      icon: <FontAwesomeIcon icon={faMoon}></FontAwesomeIcon>,
+      className: "blue"
     },
     {
       tiempo: "Night",
-      icon: <FontAwesomeIcon icon={faBed} />
+      icon: <FontAwesomeIcon icon={faBed} />,
+      className: "purple"
     },
     {
       tiempo: "Only when i need it",
-      icon: <FontAwesomeIcon icon={faPills} />
+      icon: <FontAwesomeIcon icon={faPills} />,
+      className:"green"
     }
   ])
 
   const [recetas, setRecetas] = useState([])
+  
 
   useEffect(()=>{
 
@@ -56,11 +63,11 @@ function Tabla() {
       .then(response => response.json())
       .then(data => {
         setRecetas(data.Recetas)
-        console.log(data.Recetas)
+        
       })
       .catch(error => console.error('Error fetching data:', error));
 
-  },[])
+  },[medicamentos,dosis,tiempo,fecha,comentarios])
   
 
    
@@ -73,7 +80,7 @@ function Tabla() {
   }
 
  
-const [medicinas, setMedicinas] = useState([]);
+  const [medicinas, setMedicinas] = useState([]);
   const [selectedMedicina, setSelectedMedicina] = useState('');
 
   useEffect(() => {
@@ -87,7 +94,8 @@ const [medicinas, setMedicinas] = useState([]);
       .then(response => response.json())
       .then(data => setMedicinas(data.medicina))
       .catch(error => console.error('Error fetching data:', error));
-  }, []);
+      console.log("hola")
+  },[]);
 
   const handleSelectChange = event => {
     setSelectedMedicina(event.target.value);
@@ -95,13 +103,15 @@ const [medicinas, setMedicinas] = useState([]);
 
   const handleGuardarMedicina = () => {
     
+    // useEffect(()=>{
+
+    // })
     fetch('http://localhost:8082/registrarReceta',{
       method:'POST',
       body: JSON.stringify({
         "medicina_id": selectedMedicina,
         "dosis": dosis,
         "tiempo": tiempo,
-        "fecha":fecha,
         "comentarios":comentarios,
         
 
@@ -122,9 +132,6 @@ const [medicinas, setMedicinas] = useState([]);
     //   return tabla.map(item => ({ ...item, medicina: selectedMedicina }));
     // });
 
-    setShowModal(false);
-    
-    
   };
 
   const tomarPastilla = async (id_medicamento) => {
@@ -136,6 +143,8 @@ const [medicinas, setMedicinas] = useState([]);
             },
             body: JSON.stringify({
                 id_medicamento: id_medicamento,
+                tiempo: tiempo
+                
             }),
         });
 
@@ -150,47 +159,79 @@ const [medicinas, setMedicinas] = useState([]);
     }
 };
 
+const Terminar = async(id_medicamento) => {
+  try {
+      const response = await fetch(`http://localhost:8082/eliminarReceta`, {
+          method: 'DELETE',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              id_medicamento: id_medicamento,
+          }),
+      });
+
+      if (!response.ok) {
+          throw new Error(`Error al eliminar. Código de estado: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Respuesta del servidor:", data);
+
+      // Actualizar el estado local (recetas) después de la eliminación
+      setRecetas((prevRecetas) => {
+          // Filtrar las recetas para excluir la receta eliminada
+          return prevRecetas.filter((receta) => receta.id_medicamento !== id_medicamento);
+      });
+  } catch (error) {
+      console.error("Error al eliminar la receta:", error.message);
+  }
+};
+
 
   const getMedicamento = (categoria, index) => {
 
-    const recetasPorCategoria = recetas.filter(item => item.hora === categoria.tiempo)
+      const recetasPorCategoria = recetas.filter(item => item.hora === categoria.tiempo)
 
-    if(recetasPorCategoria[index] !== undefined){
-      return <>
-        <td className='celda border'>{recetasPorCategoria[index].nombre_medicina}</td>
-        <td className='celda border'>{recetasPorCategoria[index].dosis}</td>
-        <td className='celda border'>{recetasPorCategoria[index].tiempo}</td>
-        <td className='celda border'>{recetasPorCategoria[index].fecha}</td>
-        <td className='celda border'>{recetasPorCategoria[index].comentarios}</td>
-    
-        <button className='TomarPastilla' onClick={() => tomarPastilla(recetasPorCategoria[index].id_medicamento)}>Tomar</button>
-        
+      if(recetasPorCategoria[index] !== undefined){
+        return <>
+          <td className='celda border'>{recetasPorCategoria[index].nombre_medicina}</td>
+          <td className='celda border'>{recetasPorCategoria[index].dosis}</td>
+          <td className='celda border'>{recetasPorCategoria[index].tiempo}</td>
+          <td className='celda border'>{recetasPorCategoria[index].horaNueva}</td>
+          <td className='celda border'>{recetasPorCategoria[index].comentarios}</td>
+      
+          <button className='TomarPastilla' onClick={() => tomarPastilla(recetasPorCategoria[index].id_medicamento)}>Tomar</button>
+          <button className='Terminar' onClick={()=>Terminar(recetasPorCategoria[index].id_medicamento)}>Terminar</button>
+          
+        </>
+      }
+      
+
+      return  <>
+      <td className='celda border'></td>
+      <td className='celda border'></td>
+      <td className='celda border'></td>
+      <td className='celda border'></td>
+      <td className='celda border'></td>
+      
+
+
+
+      
       </>
-    }
-    
-
-    return  <>
-    <td className='celda border'></td>
-    <td className='celda border'></td>
-    <td className='celda border'></td>
-    <td className='celda border'></td>
-    <td className='celda border'></td>
-
-
-
-    
-    </>
   }
 
-   return (
+  return (
     <>
+      
       <h1 className="text-6xl text-center font-bold text-teal-500 title">CUADRO DE MEDICAMENTOS</h1>
       
       <button className="btn btn-primary" onClick={agregarMedicina}>Agregar Medicina</button>
           <div className='contenedor'>
           {
             medicamentos.map((categoria, posicion)=>(
-              <table className='table-style' >
+              <table className={`table-style ${categoria.className}`} >
                 {
                   posicion === 0 && (
                     <tr>
@@ -200,13 +241,14 @@ const [medicinas, setMedicinas] = useState([]);
                     <th className='column'>Tiempo</th>
                     <th className='column'>Fecha</th>
                     <th className='column'>Comentarios</th>
+                    
                 </tr>
                   )
                 }
               
               {
                 tabla.map((_, index)=>(           
-                  <tr key={index}>
+                  <tr key={index} >
                     {
                         index === 0 && (
                           <td rowSpan={4} className={`columan-fija icons ${categoria.tiempo.toLowerCase()}`}>
@@ -263,25 +305,15 @@ const [medicinas, setMedicinas] = useState([]);
                   />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="tiempo">Tiempo(Días):</label>
+                    <label htmlFor="tiempo">Tiempo:</label>
                     <input
                       type="number"
                       className="form-control"
                       id="tiempo"
                       required
-                      onChange={e => setTiempo(e.target.value)}
+                      onChange={handleTiempoChange}
                     />
                   </div>
-                <div className="form-group">
-                  <label htmlFor="fecha">Fecha:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="fecha"
-                    required
-                    onChange={e => setFecha(e.target.value)}
-                  />
-                </div>
                 <div className="form-group">
                   <label htmlFor="comentarios">Comentarios:</label>
                   <input
