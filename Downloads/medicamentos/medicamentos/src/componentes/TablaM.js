@@ -15,7 +15,9 @@ function Tabla() {
 
 
     const handleTiempoChange = event => {
-      setTiempo(event.target.value);
+      const tiempoValue = event.target.value;
+      console.log("Nuevo valor de tiempo:", tiempoValue);
+      setTiempo(tiempoValue);
     };
 
   const [tabla, setTabla] = useState([1,2,3,4])
@@ -67,7 +69,7 @@ function Tabla() {
       })
       .catch(error => console.error('Error fetching data:', error));
 
-  },[medicamentos,dosis,tiempo,fecha,comentarios])
+  },[...recetas])
   
 
    
@@ -132,32 +134,40 @@ function Tabla() {
     //   return tabla.map(item => ({ ...item, medicina: selectedMedicina }));
     // });
 
+    setShowModal(false)
+
   };
 
-  const tomarPastilla = async (id_medicamento) => {
+  const tomarPastilla = async (id_medicamento, tiempo) => {
     try {
-        const response = await fetch(`http://localhost:8082/actualizarHora`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                id_medicamento: id_medicamento,
-                tiempo: tiempo
-                
-            }),
-        });
+      const response = await fetch(`http://localhost:8082/actualizarHora`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id_medicamento: id_medicamento,
+          tiempo: tiempo
+        }),
+      });
 
-        if (!response.ok) {
-            throw new Error(`Error al actualizar la fecha. Código de estado: ${response.status}`);
-        }
+      if (!response.ok) {
+        throw new Error(`Error al actualizar la fecha. Código de estado: ${response.status}`);
+      }
 
-        const data = await response.json();
-        console.log("Respuesta del servidor:", data);
+      const data = await response.json();
+      console.log("Respuesta del servidor:", data);
+
+      // Actualiza el estado local (recetas) después de tomar la pastilla
+      setRecetas(prevRecetas => prevRecetas.map(receta =>
+        receta.id_medicamento === id_medicamento
+          ? { ...receta, tiempo: tiempo }
+          : receta
+      ));
     } catch (error) {
-        console.error("Error al actualizar la fecha:", error.message);
+      console.error("Error al actualizar la fecha:", error.message);
     }
-};
+  };
 
 const Terminar = async(id_medicamento) => {
   try {
@@ -201,7 +211,7 @@ const Terminar = async(id_medicamento) => {
           <td className='celda border'>{recetasPorCategoria[index].horaNueva}</td>
           <td className='celda border'>{recetasPorCategoria[index].comentarios}</td>
       
-          <button className='TomarPastilla' onClick={() => tomarPastilla(recetasPorCategoria[index].id_medicamento)}>Tomar</button>
+          <button className='TomarPastilla' onClick={() => tomarPastilla(recetasPorCategoria[index].id_medicamento,recetasPorCategoria[index].tiempo)}>Tomar</button>
           <button className='Terminar' onClick={()=>Terminar(recetasPorCategoria[index].id_medicamento)}>Terminar</button>
           
         </>
