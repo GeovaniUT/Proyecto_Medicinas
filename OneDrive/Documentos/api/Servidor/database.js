@@ -31,7 +31,7 @@ app.post('/crearUsuario',(request, response)=>{
         if(error) return response.json({error: "error en la consulta",error})
         return response.json({usuarios: resultado});
     })
-})
+}) 
 
 
 app.get('/obtenerUsuarios',(request, response)=>{
@@ -53,7 +53,7 @@ app.get('/obtenerMedicina',(request,response)=>{
 })
 
 app.post('/registrarReceta',(request, response)=>{
-    const sql = `INSERT INTO medicamentos (medicina_id, dosis, tiempo, fecha, comentarios) VALUES ( '${request.body.medicina_id}','${request.body.dosis}', '${request.body.tiempo}', '${request.body.fecha}', '${request.body.comentarios}')`;
+    const sql = `INSERT INTO medicamentos (medicina_id, dosis, tiempo, comentarios) VALUES ( '${request.body.medicina_id}','${request.body.dosis}', '${request.body.tiempo}', '${request.body.comentarios}')`;
     conexion.query(sql, (error,resultado)=>{
         if(error) return response.json({error: 'error en la consulta', error})
         return response.json({usuarios: resultado})
@@ -66,11 +66,16 @@ app.get('/obtenerRecetas',(request,response)=>{
     conexion.query(sql,(error, result)=>{
         if(error) return response.json({error: 'Error en la consulta', error})
 
+        
         const listMedicamentos = result[0];
         const listadoMedicamentosFormateado = [];
 
         listMedicamentos.forEach(element => {
             const time = new Date(element.hora);
+
+            
+            let horaNueva= `${time.getHours()}:${time.getMinutes()}`;
+            
 
             console.log(time.getHours(), element.hora)
 
@@ -89,7 +94,8 @@ app.get('/obtenerRecetas',(request,response)=>{
 
             listadoMedicamentosFormateado.push({
                 ...element,
-                hora: formattedTime
+                hora: formattedTime,
+                horaNueva
             });
         });
 
@@ -100,8 +106,11 @@ app.get('/obtenerRecetas',(request,response)=>{
 
 app.put('/actualizarHora', (request, response) => {
     const id_medicamento = request.body.id_medicamento;
+    const tiempo = request.body.tiempo;
 
-    const sql = `UPDATE medicamentos SET hora = NOW() WHERE id_medicamento = ${id_medicamento};`
+    const sql= `UPDATE medicamentos SET hora = DATE_ADD(hora, INTERVAL ${tiempo} HOUR)WHERE id_medicamento = ${id_medicamento}`
+    console.log(sql)
+    // const sql = `UPDATE medicamentos SET hora = NOW() WHERE id_medicamento = ${id_medicamento};`
 
     console.log(sql)
     conexion.query(sql, (error, result) => {
@@ -109,6 +118,15 @@ app.put('/actualizarHora', (request, response) => {
         return response.json({ Hora: result })
     })
 });
+
+app.delete('/eliminarReceta',(request, response)=>{
+    const sql =`DELETE FROM medicamentos WHERE id_medicamento = ${request.body.id_medicamento};`
+
+    conexion.query(sql,(error,result)=>{
+        if(error) return response.json({error: "error al eliminar", error})
+        return response.json({resultado: result})
+    })
+})
 
 
 
